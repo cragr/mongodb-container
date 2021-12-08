@@ -1,6 +1,13 @@
 MongoDB 3.6 NoSQL Database Server container image
 =================================================
 
+DISCLAIMER:  use at your own risk, for educational purposes only
+DISCLAIMER:  use at your own risk, for educational purposes only
+DISCLAIMER:  use at your own risk, for educational purposes only
+DISCLAIMER:  use at your own risk, for educational purposes only
+DISCLAIMER:  use at your own risk, for educational purposes only
+DISCLAIMER:  use at your own risk, for educational purposes only
+
 This repository contains Dockerfiles for MongoDB images for general usage and OpenShift.
 Users can choose between RHEL and CentOS based images.
 The RHEL image is available in the [Red Hat Container Catalog](https://access.redhat.com/containers/#/registry.access.redhat.com/rhscl/mongodb-36-rhel7)
