@@ -1,6 +1,13 @@
 MongoDB container images
 ========================
 
+DISCLAIMER:  use at your own risk, for educational purposes only
+DISCLAIMER:  use at your own risk, for educational purposes only
+DISCLAIMER:  use at your own risk, for educational purposes only
+DISCLAIMER:  use at your own risk, for educational purposes only
+DISCLAIMER:  use at your own risk, for educational purposes only
+DISCLAIMER:  use at your own risk, for educational purposes only
+
 This repository contains Dockerfiles for MongoDB images for OpenShift.
 Users can choose between RHEL, Fedora and CentOS based images.
 
