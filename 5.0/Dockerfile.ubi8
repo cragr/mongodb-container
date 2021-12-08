@@ -1,0 +1,66 @@
+#FROM quay.io/centos7/s2i-core-centos7
+FROM ubi8/s2i-base:1
+
+ENV MONGODB_VER=5.0 \
+    MONGODB_VER_SHORT=50 \
+    NAME=mongodb
+
+ENV SUMMARY="MongoDB NoSQL database server" \
+    DESCRIPTION="MongoDB (from humongous) is a free and open-source \
+cross-platform document-oriented database program. Classified as a NoSQL \
+database program, MongoDB uses JSON-like documents with schemas. This \
+container image contains programs to run mongod server."
+
+LABEL summary="$SUMMARY" \
+      description="$DESCRIPTION" \
+      io.k8s.description="$DESCRIPTION" \
+      io.k8s.display-name="MongoDB ${MONGODB_VER}" \
+      io.openshift.expose-services="27017:mongodb" \
+      io.openshift.tags="database,${NAME},${NAME}${MONGODB_VER_SHORT},${NAME}-${MONGODB_VER_SHORT}" \
+      com.redhat.component="rh-mongodb50-container" \
+      name="ubi8/${NAME}-${MONGODB_VER_SHORT}" \
+      usage="docker run -d -e MONGODB_ADMIN_PASSWORD=my_pass quay.io/centos7/mongodb-36-centos7" \
+      version="1" \
+      maintainer="cragr"
+
+ENV MONGODB_VERSION=5.0 \
+    # Set paths to avoid hard-coding them in scripts.
+    APP_DATA=/opt/app-root/src \
+    HOME=/var/lib/mongodb \
+    CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mongodb \
+    # Incantations to enable Software Collections on `bash` and `sh -i`.
+    #ENABLED_COLLECTIONS=rh-mongodb36 \
+    BASH_ENV="\${CONTAINER_SCRIPTS_PATH}/scl_enable" \
+    ENV="\${CONTAINER_SCRIPTS_PATH}/scl_enable" \
+    PROMPT_COMMAND=". \${CONTAINER_SCRIPTS_PATH}/scl_enable"
+
+EXPOSE 27017
+
+ENTRYPOINT ["container-entrypoint"]
+CMD ["run-mongod"]
+
+ADD mongodb-org-5.0.repo /etc/yum.repos.d/mongodb-org-5.0.repo
+
+RUN useradd -ms /bin/bash mongodb && \ 
+    #INSTALL_PKGS="bind-utils gettext iproute rsync tar rh-mongodb36-mongodb rh-mongodb36 rh-mongodb36-mongo-tools rh-mongodb36-syspaths groff-base" && \
+    INSTALL_PKGS="bind-utils gettext iproute rsync tar mongodb-org groff-base" && \
+    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+    rpm -V $INSTALL_PKGS && \
+    yum -y clean all --enablerepo='*'
+
+COPY s2i/bin/ $STI_SCRIPTS_PATH
+
+COPY root /
+
+# Container setup
+RUN : > /etc/mongod.conf && \
+    mkdir -p ${HOME}/data && \
+    # Set owner 'mongodb:0' and 'g+rw(x)' permission - to avoid problems running container with arbitrary UID
+    /usr/libexec/fix-permissions /etc/mongod.conf ${CONTAINER_SCRIPTS_PATH}/mongod.conf.template \
+    ${HOME} ${APP_DATA}/.. && \
+    usermod -a -G root mongodb && \
+    rpm-file-permissions
+
+VOLUME ["/var/lib/mongodb/data"]
+
+USER 184
